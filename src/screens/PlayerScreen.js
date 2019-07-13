@@ -11,6 +11,14 @@ let cancel;
 const CancelToken = axios.CancelToken;
 
 class PlayerScreen extends React.Component {
+
+    static navigationOptions = ({ navigation }) => {
+        const { params = {} } = navigation.state;
+        return {
+            title: params.player
+        }
+    };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -68,7 +76,6 @@ class PlayerScreen extends React.Component {
 
     return (
       <View>
-        <Text>{this.props.navigation.getParam("player")}</Text>
         <View>
           <Text>Position: {playerInfo.position}</Text>
           <Text>

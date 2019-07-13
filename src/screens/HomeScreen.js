@@ -1,60 +1,51 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import { grey } from 'ansi-colors';
+import React from "react";
+import { FlatList } from "react-native-gesture-handler";
+import TeamItem from "../components/TeamItem";
+import ItemSeperator from "../components/ItemSeparator";
+import axios from 'axios';
 
-const teams = [
-    "Atlanta Hawks",
-    "Boston Celtics",
-    "Brooklyn Nets",
-    "Charlotte Hornets",
-    "Chicago Bulls",
-    "Cleveland Cavaliers",
-    "Dallas Mavericks",
-    "Denver Nuggets",
-    "Detroit Pistons",
-    "Golden State Warriors",
-    "Houston Rockets",
-    "Indiana Pacers",
-    "LA Clippers",
-    "Los Angeles Lakers",
-    "Memphis Grizzlies",
-    "Miami Heat",
-    "Milwaukee Bucks",
-    "Minnesota Timberwolves",
-    "New Orleans Pelicans",
-    "New York Knicks",
-    "Oklahoma City Thunder",
-    "Orlando Magic",
-    "Philadelphia 76ers",
-    "Phoenix Suns",
-    "Portland Trail Blazers",
-    "Sacramento Kings",
-    "San Antonio Spurs",
-    "Toronto Raptors",
-    "Utah Jazz",
-    "Washington Wizards"];
+const requestUrl = "https://nbaspringboot.herokuapp.com/get_teams";
+let cancel;
+const CancelToken = axios.CancelToken;
 
 class HomeScreen extends React.Component {
-    render() {
-        const { navigate } = this.props.navigation;
-        return (
-            <View>
-                <ScrollView>
-                    {teams.map((team, i) =>
-                        <TouchableOpacity key={i} onPress={() => navigate('Team', { team: team })}>
-                            <View style={{
-                                backgroundColor: grey, alignItems: 'center', flex: 1, flexDirection: 'row',
-                                justifyContent: 'space-between', borderRadius: 5, margin: 5, padding: 10
-                            }}>
-                                <Text style={{ color: 'black' }}>{team}</Text>
-                                <Text>></Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                </ScrollView>
-            </View>
-        );
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      teams: []
+    };
+  }
+
+  componentDidMount() {
+    axios
+      .get(requestUrl, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        })
+      })
+      .then(response => {
+        this.setState({
+          teams: response.data.teams ? response.data.teams : []
+        });
+      });
+  }
+
+  static navigationOptions = {
+    title: "Teams"
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+    let teams = this.state.teams;
+    return (
+      <FlatList
+        data={teams}
+        renderItem={({ item }) => <TeamItem team={item.full_name} logo={item.logo} navigate={navigate} />}
+        keyExtractor={(item, index) => index.toString()}
+        ItemSeparatorComponent={ItemSeperator}
+      />
+    );
+  }
 }
 
 // const styles = StyleSheet.create({

@@ -7,7 +7,7 @@ const MainNavigator = createStackNavigator({
     Home: { screen: HomeScreen },
     Team: { screen: TeamScreen },
     Player: { screen: PlayerScreen }
-});
+}, {headerLayoutPreset: 'left'});
 
 const AppNavigator = createAppContainer(MainNavigator);
 

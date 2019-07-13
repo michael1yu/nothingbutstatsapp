@@ -1,19 +1,23 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView
-} from "react-native";
 import axios from "axios";
-import { grey } from "ansi-colors";
+import { FlatList } from "react-native-gesture-handler";
+import { Text, View } from "react-native";
+import PlayerItem from "../components/PlayerItem";
+import ItemSeparator from "../components/ItemSeparator";
+import Image from "react-native-remote-svg";
 
 const requestUrl = "https://nbaspringboot.herokuapp.com/query_current_players";
 let cancel;
 const CancelToken = axios.CancelToken;
 
 class TeamScreen extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    return {
+      title: params.team
+    };
+  };
+
   constructor(props) {
     super(props);
     this.state = { players: [] };
@@ -41,46 +45,24 @@ class TeamScreen extends React.Component {
   }
 
   componentWillUnmount() {
-    cancel('Operation canceled by the user.');
-}
+    cancel("Operation canceled by the user.");
+  }
 
   render() {
     const { navigate } = this.props.navigation;
     const team = this.props.navigation.getParam("team", "Undefined");
+    const logo = this.props.navigation.getParam("logo");
 
     return (
       <View>
-        <Text>{team}</Text>
-        <ScrollView>
-          {this.state.players.map((player, i) => (
-            <TouchableOpacity
-              key={i}
-              onPress={() =>
-                navigate("Player", {
-                  player: player.name,
-                  id: player.id,
-                  team: team
-                })
-              }
-            >
-              <View
-                style={{
-                  backgroundColor: grey,
-                  alignItems: "center",
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  borderRadius: 5,
-                  margin: 5,
-                  padding: 10
-                }}
-              >
-                <Text style={{ color: "black" }}>{player.name}</Text>
-                <Text>></Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <FlatList
+          data={this.state.players}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <PlayerItem player={item} team={team} navigate={navigate} />
+          )}
+          ItemSeparatorComponent={ItemSeparator}
+        />
       </View>
     );
   }
