@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   ScrollView
 } from "react-native";
-import axios from 'axios';
-import { grey } from 'ansi-colors';
+import axios from "axios";
+import { grey } from "ansi-colors";
 
 const requestUrl = "https://nbaspringboot.herokuapp.com/query_current_players";
 let cancel;
+const CancelToken = axios.CancelToken;
 
 class TeamScreen extends React.Component {
   constructor(props) {
@@ -21,19 +22,27 @@ class TeamScreen extends React.Component {
   componentDidMount() {
     const current = "true";
     const team = this.props.navigation.getParam("team", "Undefined");
-    axios.get(requestUrl, 
-        {
-          params: {
-            team: team,
-            current: current
-          }
+    axios
+      .get(requestUrl, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+        params: {
+          team: team,
+          current: current
         }
-      ).then(
-        response => {
-          this.setState({ players: response.data.players ? response.data.players : [] });
-        }
-      );
+      })
+      .then(response => {
+        this.setState({
+          players: response.data.players ? response.data.players : []
+        });
+      });
   }
+
+  componentWillUnmount() {
+    cancel('Operation canceled by the user.');
+}
 
   render() {
     const { navigate } = this.props.navigation;
@@ -47,7 +56,11 @@ class TeamScreen extends React.Component {
             <TouchableOpacity
               key={i}
               onPress={() =>
-                navigate("Player", { player: player.name })
+                navigate("Player", {
+                  player: player.name,
+                  id: player.id,
+                  team: team
+                })
               }
             >
               <View
@@ -62,9 +75,7 @@ class TeamScreen extends React.Component {
                   padding: 10
                 }}
               >
-                <Text style={{ color: "black" }}>
-                  {player.name}
-                </Text>
+                <Text style={{ color: "black" }}>{player.name}</Text>
                 <Text>></Text>
               </View>
             </TouchableOpacity>
