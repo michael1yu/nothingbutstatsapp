@@ -1,6 +1,8 @@
 import React from "react";
 import { Text, View } from "react-native";
 import axios from "axios";
+import ExpandablePanel from "../components/ExpandablePanel";
+import Animated from "react-native-reanimated";
 
 const requestStatsUrl = "https://nbaspringboot.herokuapp.com/get_player_stats";
 const requestInfoUrl = "https://nbaspringboot.herokuapp.com/get_player_info";
@@ -11,13 +13,12 @@ let cancel;
 const CancelToken = axios.CancelToken;
 
 class PlayerScreen extends React.Component {
-
-    static navigationOptions = ({ navigation }) => {
-        const { params = {} } = navigation.state;
-        return {
-            title: params.player
-        }
+  static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    return {
+      title: params.player
     };
+  };
 
   constructor(props) {
     super(props);
@@ -70,7 +71,6 @@ class PlayerScreen extends React.Component {
   }
 
   render() {
-
     playerInfo = this.state.info;
     playerStats = this.state.stats;
 
@@ -82,6 +82,13 @@ class PlayerScreen extends React.Component {
             Height: {playerInfo.height_feet}' {playerInfo.height_inches}"
           </Text>
           <Text>Weight: {playerInfo.weight_pounds} lbs</Text>
+        </View>
+        <View>
+          <ExpandablePanel title="test">
+            <Text>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </Text>
+          </ExpandablePanel>
         </View>
       </View>
     );

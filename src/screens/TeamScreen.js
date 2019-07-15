@@ -1,10 +1,9 @@
 import React from "react";
 import axios from "axios";
 import { FlatList } from "react-native-gesture-handler";
-import { Text, View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import PlayerItem from "../components/PlayerItem";
 import ItemSeparator from "../components/ItemSeparator";
-import Image from "react-native-remote-svg";
 
 const requestUrl = "https://nbaspringboot.herokuapp.com/query_current_players";
 let cancel;
@@ -20,7 +19,10 @@ class TeamScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { players: [] };
+    this.state = {
+      players: [],
+      loading: true
+    };
   }
 
   componentDidMount() {
@@ -39,7 +41,8 @@ class TeamScreen extends React.Component {
       })
       .then(response => {
         this.setState({
-          players: response.data.players ? response.data.players : []
+          players: response.data.players ? response.data.players : [],
+          loading: false
         });
       });
   }
@@ -52,17 +55,31 @@ class TeamScreen extends React.Component {
     const { navigate } = this.props.navigation;
     const team = this.props.navigation.getParam("team", "Undefined");
     const logo = this.props.navigation.getParam("logo");
+    let loading = this.state.loading;
 
     return (
       <View>
-        <FlatList
-          data={this.state.players}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <PlayerItem player={item} team={team} navigate={navigate} />
-          )}
-          ItemSeparatorComponent={ItemSeparator}
-        />
+        {loading ? (
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              width: "100%"
+            }}
+          >
+            <ActivityIndicator size="large" />
+          </View>
+        ) : (
+          <FlatList
+            data={this.state.players}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <PlayerItem player={item} team={team} navigate={navigate} />
+            )}
+            ItemSeparatorComponent={ItemSeparator}
+          />
+        )}
       </View>
     );
   }

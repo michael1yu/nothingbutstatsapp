@@ -1,6 +1,4 @@
 import React from "react";
-import { Icon } from "react-native-elements";
-import { View } from "react-native";
 import Image from "react-native-remote-svg";
 import { ListItem } from "react-native-elements";
 
